@@ -23,7 +23,10 @@ Ensure you have the necessary libraries installed. You can install them using th
 ```bash
 pip install -r requirements.txt
 ```
-
+ ```bash
+git clone https://github.com/Hackpy3/lfi_finder
+cd lfi-finder
+ ```
 ## 📝 Usage
 
 1. **Run the Script**:
