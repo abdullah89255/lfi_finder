@@ -45,39 +45,40 @@ cd lfi-finder
 ## 🚀 Example
 
 To scan a list of URLs for LFI vulnerabilities, you can create a file `urls.txt` with your target URLs and run the script:
+### Example 1: Scanning a Single URL
 ```bash
-python lfi_finder.py
-```
-Example 1: Scanning a Single URL
-bash
 python lfi_finder.py
 # Follow the prompts:
 # Enter 'n' when asked to load URLs from a file
 # Enter the target URL (e.g., https://example.com)
 # Enter the name for the output file (e.g., results.txt)
 # Enter 'n' when asked to load payloads from a file
-Example 2: Scanning Multiple URLs from a File
-Create a file urls.txt with the URLs to be scanned:
+```
 
+### Example 2: Scanning Multiple URLs from a File
+Create a file `urls.txt` with the URLs to be scanned:
+```
 https://example1.com
 https://example2.com
+```
 Run the script:
-
-bash
+```bash
 python lfi_finder.py
 # Follow the prompts:
 # Enter 'y' when asked to load URLs from a file
 # Provide the file path (e.g., /path/to/urls.txt)
 # Enter the name for the output file (e.g., results.txt)
 # Enter 'n' when asked to load payloads from a file
-Example 3: Using Custom Payloads from a File
-Create a file payloads.txt with custom payloads:
+```
 
+### Example 3: Using Custom Payloads from a File
+Create a file `payloads.txt` with custom payloads:
+```
 ../../../../../../../../etc/passwd
 ../../../../../../../../etc/shadow
+```
 Run the script:
-
-bash
+```bash
 python lfi_finder.py
 # Follow the prompts:
 # Enter 'n' when asked to load URLs from a file
@@ -85,6 +86,8 @@ python lfi_finder.py
 # Enter the name for the output file (e.g., results.txt)
 # Enter 'y' when asked to load payloads from a file
 # Provide the file path (e.g., /path/to/payloads.txt)
+```
+
 Follow the prompts to load URLs, specify an output file, and load payloads if needed.
 
 ## ⚠️ Disclaimer
