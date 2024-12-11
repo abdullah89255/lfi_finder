@@ -23,6 +23,10 @@ Ensure you have the necessary libraries installed. You can install them using th
 ```bash
 pip install -r requirements.txt
 ```
+ Install `waybackurls`** for fetching archived URLs:
+   ```bash
+   go install github.com/tomnomnom/waybackurls@latest
+   ```
  ```bash
 git clone https://github.com/Hackpy3/lfi_finder
 cd lfi_finder
