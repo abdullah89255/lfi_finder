@@ -25,7 +25,7 @@ pip install -r requirements.txt
 ```
  ```bash
 git clone https://github.com/Hackpy3/lfi_finder
-cd lfi-finder
+cd lfi_finder
  ```
 ## 📝 Usage
 
