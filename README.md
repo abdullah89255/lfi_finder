@@ -9,14 +9,6 @@ Welcome to the **LFI Parameter Finder**! This tool is designed to scan URLs for 
 - 🌐 Crawl URLs to find internal links
 - 📝 Save results automatically to an output file
 
-## 📂 Default LFI Payloads
-
-The tool comes with a comprehensive set of default LFI payloads to test various sensitive files in Linux/Unix systems:
-
-```
-/etc/passwd, /etc/shadow, /var/log/auth.log, /windows/win.ini, /windows/system32/drivers/etc/hosts, /usr/local/apache2/logs/error_log, /proc/self/environ, /etc/issue, /opt/lampp/logs/access_log, /etc/group, /etc/hosts, /etc/motd, /etc/shells, /etc/network/interfaces, /etc/crontab, /etc/apt/sources.list, /etc/hostname, /etc/resolv.conf, /etc/mail.rc, /etc/postfix/main.cf, /etc/aliases, /etc/exports, /etc/fstab, /etc/inittab, /etc/ld.so.conf, /etc/logrotate.conf, /etc/mtab, /etc/nsswitch.conf, /opt/samba/smb.conf, /etc/profile, /etc/protocols, /etc/securetty, /etc/services, /etc/sysctl.conf, /etc/systemd/system.conf, /etc/timezone, /etc/vsftpd.conf, /usr/lib/python3/dist-packages/apt_pkg.so, /usr/share/common-licenses/GPL, /var/log/alternatives.log, /var/log/apport.log, /var/log/apt/history.log, /var/log/apt/term.log, /var/log/auth.log, /var/log/boot.log, /var/log/dpkg.log, /var/log/faillog, /var/log/kern.log, /var/log/lastlog, /var/log/syslog, /var/log/wtmp, /var/log/xferlog, /var/www/html/index.html, /proc/self/cmdline, /proc/self/status, /proc/version, /proc/net/arp, /proc/net/fib_trie, /proc/net/tcp, /proc/net/udp, /proc/net/unix, /proc/net/route, /proc/net/rt_cache, /proc/self/mounts, /var/run/utmp, /var/run/docker.sock.
-```
-
 ## 📦 Requirements
 
 Ensure you have the necessary libraries installed. You can install them using the following command:
