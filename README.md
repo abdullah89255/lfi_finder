@@ -19,7 +19,6 @@ cd lfi_finder
 ```bash
 pip install -r requirements.txt
 ```
- Install `waybackurls`** for fetching archived URLs:
    ```bash
    go install github.com/tomnomnom/waybackurls@latest
    ```
