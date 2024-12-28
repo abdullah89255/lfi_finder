@@ -11,7 +11,11 @@ Welcome to the **LFI Parameter Finder**! This tool is designed to scan URLs for 
 
 ## 📦 Requirements
 
-Ensure you have the necessary libraries installed. You can install them using the following command:
+
+ ```bash
+git clone https://github.com/Hackpy3/lfi_finder
+cd lfi_finder
+ ```
 ```bash
 pip install -r requirements.txt
 ```
@@ -19,10 +23,6 @@ pip install -r requirements.txt
    ```bash
    go install github.com/tomnomnom/waybackurls@latest
    ```
- ```bash
-git clone https://github.com/Hackpy3/lfi_finder
-cd lfi_finder
- ```
 ## 📝 Usage
 
 1. **Run the Script**:
