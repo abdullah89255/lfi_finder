@@ -222,9 +222,9 @@ if __name__ == "__main__":
     print("🔑 Example Input: https://example.com")
     print("⚠️ Disclaimer: Use this tool only for educational purposes and authorized testing!")
 
-    urls_option = input("📂 Do you want to load URLs from a .txt file? (y/n): ").lower()
+    urls_option = input("📂 Do you want to load URLs from a URLs.txt file? (y/n): ").lower()
     if urls_option == 'y':
-        urls_file_path = input("📂 Enter the path to the .txt file containing URLs: ")
+        urls_file_path = input("📂 Enter the path to the URLs.txt file containing URLs: ")
         urls = load_from_file(urls_file_path)
     else:
         target_url = input("🔗 Enter the target URL (e.g., https://example.com): ")
