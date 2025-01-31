@@ -13,7 +13,7 @@ Welcome to the **LFI Parameter Finder**! This tool is designed to scan URLs for 
 
 
  ```bash
-git clone https://github.com/Hackpy3/lfi_finder
+git clone https://github.com/abdullah89255/lfi_finder
 cd lfi_finder
  ```
 ```bash
